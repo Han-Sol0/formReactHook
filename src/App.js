@@ -1,25 +1,76 @@
+import { useEffect, useRef } from "react";
 import "./App.css";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { useEffect, useRef, useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { registrationFormSchema } from "./registration-form-schema";
+import { Field } from "./components/field";
 
-const loginChangeScheme = yup
+export const App = () => {
+    const {
+        register,
+        handleSubmit,
+        formState: { isValid, errors },
+    } = useForm({
+        defaultValues: {
+            email: "",
+            password: "",
+            repeatPassword: "",
+        },
+        resolver: yupResolver(registrationFormSchema),
+        mode: "onTouched",
+    });
+
+    const submitButtonRef = useRef(null);
+
+    const onSubmit = ({ email, password, repeatPassword }) => {
+        console.log({ email, password, repeatPassword });
+    };
+
+    useEffect(() => {
+        if (isValid) {
+            submitButtonRef.current.focus();
+        }
+    }, [isValid]);
+    return (
+        <div>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <Field
+                    type="text"
+                    placeholder="Почта"
+                    error={errors.email?.message}
+                    {...register("email")}
+                />
+                <Field
+                    type="password"
+                    placeholder="Пароль"
+                    error={errors.password?.message}
+                    {...register("password")}
+                />
+                <Field
+                    type="password"
+                    placeholder="Повтор пароля"
+                    error={errors.repeatPassword?.message}
+                    {...register("repeatPassword")}
+                />
+                <button type="submit" disabled={!isValid} ref={submitButtonRef}>
+                    Зарегистрироваться
+                </button>
+            </form>
+        </div>
+    );
+};
+
+/* const loginChangeScheme = yup
     .string()
-    .matches(/^\S{2,}@\S{2,}\.[a-zA-Z]{2,10}$/, "Неверный логин.");
-
+    .required("Заполните почту")
+    .email("Неверный логин.");
 const passwordChangeScheme = yup
     .string()
-    .matches(
-        /^\S+$/ && /[a-zA-Z]+/ && /[0-9]+/ && /[\W_]+/,
-        "Пароль не удовлетворяет политикам безопасности."
-    );
+    .matches(/^\S+$/, "Пароль не удовлетворяет политикам безопасности.")
+    .matches(/[a-zA-Z]+/, "Пароль не удовлетворяет политикам безопасности.")
+    .matches(/[0-9]+/, "Пароль не удовлетворяет политикам безопасности.")
+    .matches(/[\W_]+/, "Пароль не удовлетворяет политикам безопасности.");
 
-/*  const repeatPasswordChangeScheme = yup
-    .string()
-    .matches(
-        /^\S+$/ && /[a-zA-Z]+/ && /[0-9]+/ && /[\W_]+/,
-        "Пароль не удовлетворяет политикам безопасности."
-    ); */
 const validateAndGetErrorMessage = (scheme, value) => {
     let errorMessage = null;
     try {
@@ -130,6 +181,6 @@ function App() {
             </form>
         </div>
     );
-}
+} */
 
 export default App;
